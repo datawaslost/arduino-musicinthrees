@@ -1,5 +1,4 @@
 arduino-musicinthrees
-
 =====================
 
 12-tone #1c / Music in Threes ( Arranged for the ATMega328 )
@@ -9,9 +8,7 @@ Composition by Michael Winters / MW Ensemble - http://www.ionikrecords.com
 Programming by Michael Bond - http://keepfrozen.com
 
 
-PWM Synthesis based on Auduino code by Peter Knight, Tinker.it http://tinker.it
-
-http://code.google.com/p/tinkerit/wiki/Auduino
+PWM Synthesis based on Auduino code by Peter Knight, Tinker.it - http://code.google.com/p/tinkerit/wiki/Auduino
 
 
 =====================
