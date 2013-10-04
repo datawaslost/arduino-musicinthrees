@@ -1,6 +1,7 @@
 // Music in Threes
 // ( Arranged for the ATMega328 )
 // Composition by Michael Winters, Programming by Michael Bond
+
 // Based on Auduino code by Peter Knight, Tinker.it http://tinker.it
 // http://code.google.com/p/tinkerit/wiki/Auduino
 
@@ -12,13 +13,13 @@ uint16_t syncPhaseAcc2, syncPhaseInc2, grainPhaseAcc2, grainAmp2, grain2PhaseAcc
 uint16_t algo, next_threestable[12];
 uint16_t note = -1;
 
-// overall timbre settings, frequency and decay controls
+// Overall timbre settings, frequency and decay controls
 uint16_t grainPhaseInc = 50;
 uint8_t grainDecay = 10;
 uint16_t grain2PhaseInc = 16;
 uint8_t grain2Decay = 10;
 
-// create seed note table
+// Create seed note table
 uint16_t threestable[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
 
 // PWM Output is on Pin 3
@@ -37,10 +38,13 @@ uint16_t midiTable[] = {
   1097,1163,1232,1305,1383,1465,1552,1644,1742,1845,1955,2071
 };
 
-// function to input MIDI position, output frequency
+
+// Function to input MIDI position, output frequency
+
 uint16_t mapMidi(uint16_t input) {
   return (midiTable[(1023-input) >> 3]);
 }
+
 
 void audioOn() {
   // Set up PWM to 31.25kHz, phase accurate
@@ -49,13 +53,17 @@ void audioOn() {
   TIMSK2 = _BV(TOIE2);
 }
 
+
 void setup() {
   pinMode(PWM_PIN,OUTPUT);
-  // set initial sequence { 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12 }
+  // Set initial note sequence { 1, 4, 7, 10, 2, 5, 8, 11, 3, 6, 9, 12 }
   for (int i=0; i<12; i++) threestable[i] = (i * 3) % 12 + floor(i / 4) + 1;
   audioOn();
   pinMode(LED_PIN,OUTPUT);
 }
+
+
+// Loop to play notes
 
 void loop() {
   
@@ -83,12 +91,12 @@ void loop() {
   
   // set violin pitch, once every measure
   if (note%4 == 0) syncPhaseInc2 = midiTable[threestable[note]+24];
-  
-  // Serial.println(threestable[note]);  
-  
+    
 }
 
+
 // Output PWM audio, frame by frame
+
 SIGNAL(PWM_INTERRUPT) {
   
   uint8_t value;
@@ -110,6 +118,7 @@ SIGNAL(PWM_INTERRUPT) {
   // Convert phase into a triangle wave
   value = (grainPhaseAcc >> 7) & 0xff;
   if (grainPhaseAcc & 0x8000) value = ~value;
+  
   // Multiply by current grain amplitude to get sample
   output = value * (grainAmp >> 8);
 
@@ -125,8 +134,9 @@ SIGNAL(PWM_INTERRUPT) {
   // Scale output to the available range, clipping if necessary
   output >>= 9;
   
-  // amplify
+  // Amplify
   output = output * 120;
+  
   
   // Now, for the second tone..
   
@@ -149,6 +159,7 @@ SIGNAL(PWM_INTERRUPT) {
   // Convert phase into a triangle wave
   value2 = (grainPhaseAcc2 >> 7) & 0xff;
   if (grainPhaseAcc2 & 0x8000) value2 = ~value2;
+  
   // Multiply by current grain amplitude to get sample
   output2 = value2 * (grainAmp2 >> 8);
 
@@ -164,19 +175,19 @@ SIGNAL(PWM_INTERRUPT) {
   // Scale output to the available range, clipping if necessary
   output2 >>= 9;
   
-  // amplify
+  // Amplify
   output2 = output2 * 30;
 
-  // mix the two tones
+
+  // Mix the two tones
   output = output + output2;
   
-  // amplify
-  //output = output*8;
+  // Amplify final mix (optional)
+  // output = output*8;
 
-  // clip if too loud
+  // Clip if too loud
   if (output > 255) output = 255;
   
-
   // Output to PWM (this is faster than using analogWrite)  
   PWM_VALUE = output;
   
